@@ -1,13 +1,21 @@
 export default function handler(req, res) {
-  // Mengatur agar header mengembalikan format JSON
+  // Mengatur response header berupa JSON dan CORS origin agar bisa diakses mod/aplikasi
   res.setHeader('Content-Type', 'application/json');
-  
-  // Set tanggal expired otomatis selalu +7 hari dari sekarang agar tidak repot ganti manual
-  const futureDate = new Date();
-  futureDate.setDate(futureDate.getDate() + 7);
-  const formattedDate = futureDate.toISOString().replace('T', ' ').substring(0, 19);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Payload JSON yang selalu sukses/aktif
+  // Menangani preflight request dari aplikasi jika ada
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  // Membuat tanggal dinamis otomatis agar selalu sukses dan anti-expired
+  const targetDate = new Date();
+  targetDate.setDate(targetDate.getDate() + 30); // Otomatis aktif sampai 30 hari ke depan
+  const formattedDate = targetDate.toISOString().replace('T', ' ').substring(0, 19);
+
+  // Payload data response sesuai dengan struktur awal yang kamu minta
   const successResponse = {
     "status": true,
     "data": {
@@ -34,6 +42,5 @@ export default function handler(req, res) {
     }
   };
 
-  // Kirim response status 200 OK
   return res.status(200).json(successResponse);
 }
