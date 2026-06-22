@@ -4,11 +4,9 @@ export default function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store, max-age=0, no-cache');
 
   // 1. Ambil data yang dikirim oleh aplikasi target
-  // Misalnya aplikasi mengirimkan parameter 'key' atau 'username'
-  const { username, token, hwid } = req.body;
+  const { token, hwid } = req.body || {};
 
   // 2. Buat logika penanganan waktu (Timestamp Dinamis)
-  // Ini berguna jika aplikasi mengecek apakah waktu server sinkron dengan HP
   const formatWaktu = () => {
     const date = new Date();
     const pad = (n) => String(n).padStart(2, '0');
@@ -25,14 +23,14 @@ export default function handler(req, res) {
 
   const waktuSekarang = formatWaktu();
 
-  // 3. Buat angka acak dinamis (RNG) jika aplikasi membutuhkannya
-  const angkaAcak = Math.floor(Math-random() * 1000000000);
+  // 3. Buat angka acak dinamis (Sudah diperbaiki menggunakan Math.random)
+  const angkaAcak = Math.floor(Math.random() * 1000000000);
 
   // 4. Kirim respons balik ke aplikasi
   res.status(200).json({
     "status": true,
     "data": {
-      "real": `PUBG-Teamxcracking606-${hwid || 'default-hwid'}`,
+      "real": `PUBG-Teamxcracking606-${hwid || '2c213b26-fbec-3f9b-99b2-22fe9117b75a-Vm8Lk7Uj2JmsjCPVPVjrLa7zgfx3uz9E'}`,
       "token": token || "8f3a8c41e9a0941483f5e7f15b6f19e2",
       "modname": "Auto Draw V11 Pro VIP",
       "mod_status": "Safe",
@@ -45,12 +43,12 @@ export default function handler(req, res) {
       "Floating": "on",
       "Memory": "off",
       "Setting": "on",
-      "expired_date": "2026-12-31 23:59:59", // Mengatur masa aktif ke masa depan
+      "expired_date": "2026-12-31 23:59:59", 
       "EXP": "2026-12-31 23:59:59",
-      "ts": waktuSekarang, // Mengikuti waktu saat request dibuat
+      "ts": waktuSekarang, 
       "exdate": "2026-12-31 23:59:59",
       "device": "100",
-      "rng": angkaAcak, // Angka acak baru setiap kali diklik
+      "rng": angkaAcak, 
       "realdata": "9+oM2gO0QLqDzaSOsBDiA4NTafcZALnZV9XBoWeAs68=" 
     }
   });
