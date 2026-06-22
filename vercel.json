@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/connect",
-      "destination": "/api"
+      "destination": "/api/pradaxca"
     }
   ]
 }
