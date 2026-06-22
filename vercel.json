@@ -1,11 +1,8 @@
 {
+  "version": 2,
   "rewrites": [
     {
-      "source": "/pradaxca",
-      "destination": "/api/pradaxca"
-    },
-    {
-      "source": "/pradaxca-key",
+      "source": "/connect",
       "destination": "/api/pradaxca"
     }
   ]
