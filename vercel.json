@@ -1,5 +1,12 @@
 {
   "rewrites": [
-    { "source": "/connect", "destination": "/api/connect" }
+    {
+      "source": "/pradaxca",
+      "destination": "/api/pradaxca"
+    },
+    {
+      "source": "/pradaxca-key",
+      "destination": "/api/pradaxca"
+    }
   ]
 }
