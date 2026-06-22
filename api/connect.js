@@ -1,9 +1,11 @@
 export default function handler(req, res) {
-  res.setHeader('Content-Type', 'application/json');
+  // Mengatur header CORS agar aplikasi klien diizinkan membaca data ini
+  res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
 
-  // Mengembalikan data sukses pesananmu
-  return res.status(200).json({
+  // Mengembalikan response HTTP 200 (OK) dengan format JSON persis seperti yang diminta
+  res.status(200).json({
     "status": true,
     "data": {
       "real": "PUBG-Teamxcracking606-2c213b26-fbec-3f9b-99b2-22fe9117b75a-Vm8Lk7Uj2JmsjCPVPVjrLa7zgfx3uz9E",
