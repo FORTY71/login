@@ -1,9 +1,8 @@
 {
-  "version": 2,
   "rewrites": [
     {
       "source": "/connect",
-      "destination": "/api/pradaxca"
+      "destination": "/api/connect"
     }
   ]
 }
