@@ -1,48 +1,31 @@
-const crypto = require('crypto');
-
 module.exports = (req, res) => {
-    // 1. Set Header Persis seperti Server PHP Apache/Nginx
+    // 1. Header Tiruan Server PHP Apache/Nginx (Sangat Ketat)
     res.setHeader('Content-Type', 'application/json; charset=UTF-8');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
     
-    // Matikan chunked encoding bawaan Vercel yang sering bikin aplikasi C++/Java bingung
-    res.setHeader('Connection', 'close'); 
+    // Mematikan optimasi cloud/CDN yang sering memotong data injector
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Connection', 'close');
 
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
 
-    // 2. Setup Waktu WIB & Expired 2099
+    // 2. Setup Waktu (Gunakan format string statis/dinamis yang dijamin aman)
     const waktuSekarang = new Date();
-    // Menyesuaikan ke timezone Asia/Jakarta (WIB) manual agar sama seperti PHP date()
     const wib = new Date(waktuSekarang.getTime() + (7 * 60 * 60 * 1000)); 
     const formatTanggalPHP = wib.toISOString().replace('T', ' ').substring(0, 19);
     
-    const expiredDate = "2099-12-31 23:59:59";
+    const expiredDate = "2099-06-29 04:22:23";
 
-    // 3. Generate Token & Data (Fallback Kebal Error)
-    let randomUUID = "2c213b26-fbec-3f9b-99b2-22fe9117b75a";
-    let randomRng = Math.floor(Math.random() * (2000000000 - 1000000000) + 1000000000);
-    let customToken = "8f3a8c41e9a0941483f5e7f15b6f19e2";
-    let realDataEncoded = "9+oM2gO0QLqDzaSOsBDiA4NTafcZALnZV9XBoWeAs68=";
-
-    try {
-        const rawTokenString = "pradaxca_auth_" + waktuSekarang.getTime() + Math.random();
-        customToken = crypto.createHash('md5').update(rawTokenString).digest('hex');
-
-        const payloadKita = JSON.stringify({ owner: "pradaxca_system", status: "VIP_LIFETIME" });
-        realDataEncoded = Buffer.from(payloadKita).toString('base64');
-        randomUUID = crypto.randomUUID ? crypto.randomUUID() : '2c213b26-fbec-3f9b-99b2-22fe9117b75a';
-    } catch (e) {
-        // Tetap aman menggunakan fallback jika ada crash internal
-    }
-
-    // 4. Struktur Data Inti (Gabungan format ROOT + OBJECT)
+    // 3. Struktur JSON Super Rapat (Kombinasi Root + Object Data)
+    // Menggunakan key "pradaxca" dan UUID asli agar tidak ditolak oleh aplikasi
     const coreData = {
-        "real": `pradaxca-${randomUUID}-Vm8Lk7Uj2JmsjCPVPVjrLa7zgfx3uz9E`,
-        "token": customToken,
+        "real": "pradaxca-2c213b26-fbec-3f9b-99b2-22fe9117b75a-Vm8Lk7Uj2JmsjCPVPVjrLa7zgfx3uz9E",
+        "token": "8f3a8c41e9a0941483f5e7f15b6f19e2",
         "modname": "Auto Draw V11 Pro VIP",
         "mod_status": "Safe",
         "credit": "Safe",
@@ -59,23 +42,21 @@ module.exports = (req, res) => {
         "ts": formatTanggalPHP,
         "exdate": expiredDate,
         "device": "100",
-        "rng": randomRng,
-        "realdata": realDataEncoded
+        "rng": 1782151112,
+        "realdata": "9+oM2gO0QLqDzaSOsBDiA4NTafcZALnZV9XBoWeAs68="
     };
 
     const responseData = {
         "status": true,
         "data": coreData,
-        ...coreData // Menyuntikkan langsung ke root level seperti json_encode PHP murni
+        ...coreData
     };
 
-    // 5. CRITICAL: Injector Android membenci spasi rapi (pretty-print) bawaan Node.js.
-    // Kita paksa konversi ke String Minified (Rapat/Tanpa Spasi) persis hasil fungsi json_encode() PHP.
+    // 4. Kirim sebagai text mentah tanpa spasi rapi bawaan Vercel (Format Minified PHP)
     const jsonMurniAlaPHP = JSON.stringify(responseData);
 
-    // Kirim Content-Length pasti agar aplikasi tahu data tidak korup/terpotong
+    // Paksa set ukuran byte agar stream data di Android tidak mengira timeout
     res.setHeader('Content-Length', Buffer.byteLength(jsonMurniAlaPHP));
 
-    // Kirim respons sukses status 200
     return res.status(200).send(jsonMurniAlaPHP);
 };
