@@ -1,39 +1,39 @@
-const querystring = require('querystring');
-
 module.exports = (req, res) => {
-    // 1. Header Bypass Tingkat Tinggi (Identik dengan Cloudflare/LiteSpeed Asli)
+    // 1. Header Bypass Tingkat Tinggi
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Server', 'cloudflare');
     res.setHeader('X-Turbo-Charged-By', 'LiteSpeed');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-    res.setHeader('Connection', 'close');
 
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
 
-    // 2. MENGAMBIL DATA POST DARI APLIKASI (KUNCI UTAMA)
-    let body = req.body || {};
+    // 2. MENGAMBIL DATA POST (Lebih Aman dan Tangguh)
+    let game = "PUBG";
+    let user_key = "Teamxcracking606";
+    let serial = "2c213b26-fbec-3f9b-99b2-22fe9117b75a";
 
-    // Vercel kadang membaca Form URL-Encoded sebagai string mentah, kita harus parse
-    if (typeof req.body === 'string') {
-        body = querystring.parse(req.body);
+    if (req.body) {
+        // Handle Form URL-Encoded string di Vercel
+        if (typeof req.body === 'string') {
+            const parsedParams = new URLSearchParams(req.body);
+            game = parsedParams.get('game') || game;
+            user_key = parsedParams.get('user_key') || user_key;
+            serial = parsedParams.get('serial') || serial;
+        } else {
+            // Handle JSON object
+            game = req.body.game || game;
+            user_key = req.body.user_key || user_key;
+            serial = req.body.serial || serial;
+        }
     }
 
-    // Ambil variabel yang dikirim HP kamu (dengan fallback aman)
-    const game = body.game || "PUBG";
-    const user_key = body.user_key || "pradaxca"; 
-    const serial = body.serial || "2c213b26-fbec-3f9b-99b2-22fe9117b75a";
-
-    // 3. MERAKIT STRING VALIDASI 'real' SECARA DINAMIS
-    // Ini yang akan membodohi sistem keamanan APK agar merespons sukses!
+    // 3. Merakit ulang kecocokan `real` sesuai dengan HP/Login kamu
     const realValue = `${game}-${user_key}-${serial}-Vm8Lk7Uj2JmsjCPVPVjrLa7zgfx3uz9E`;
 
-    const expiredDate = "2099-12-31 23:59:59";
-    const tsDate = new Date().toISOString().replace('T', ' ').substring(0, 19);
-
-    // 4. Struktur Data Inti
+    // 4. Struktur Data Inti (TIDAK BOLEH MENGUBAH TANGGAL & REALDATA DI SINI)
     const responseData = {
         "status": true,
         "data": {
@@ -50,17 +50,16 @@ module.exports = (req, res) => {
             "Floating": "on",
             "Memory": "off",
             "Setting": "on",
-            "expired_date": expiredDate,
-            "EXP": expiredDate,
-            "ts": tsDate,
-            "exdate": expiredDate,
+            "expired_date": "2026-06-29 04:22:23",
+            "EXP": "2026-06-29 04:22:23",
+            "ts": "2026-06-29 04:22:23",
+            "exdate": "2026-06-29 04:22:23",
             "device": "100",
-            "rng": 1782190046, // Diambil dari screenshot terbaru
-            "realdata": "MIX/uyk/rttB9AfplsavcojT49+YO5G2WHdg008aASE=" // Data terbaru
+            "rng": 1782190046, // Sesuai dengan Proxyman
+            "realdata": "MIX/uyk/rttB9AfplsavcojT49+YO5G2WHdg008aASE=" // Kunci dekripsi rahasia
         }
     };
 
-    // 5. Cetak ke JSON Minified dan Kirim Length yang Pas
     const jsonMurni = JSON.stringify(responseData);
     res.setHeader('Content-Length', Buffer.byteLength(jsonMurni));
 
