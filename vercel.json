@@ -1,8 +1,9 @@
 {
-  "rewrites": [
+  "version": 2,
+  "routes": [
     {
-      "source": "/connect",
-      "destination": "/api/connect"
+      "src": "/(.*)",
+      "dest": "/api/index.js"
     }
   ]
 }
