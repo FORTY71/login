@@ -1,5 +1,7 @@
+const querystring = require('querystring');
+
 module.exports = (req, res) => {
-    // 1. Meniru Header Server Asli (Sangat Penting untuk Bypass)
+    // 1. Header Bypass Tingkat Tinggi (Identik dengan Cloudflare/LiteSpeed Asli)
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Server', 'cloudflare');
     res.setHeader('X-Turbo-Charged-By', 'LiteSpeed');
@@ -11,11 +13,31 @@ module.exports = (req, res) => {
         return res.status(200).end();
     }
 
-    // 2. Data VIP 2099 milik Pradaxca
+    // 2. MENGAMBIL DATA POST DARI APLIKASI (KUNCI UTAMA)
+    let body = req.body || {};
+
+    // Vercel kadang membaca Form URL-Encoded sebagai string mentah, kita harus parse
+    if (typeof req.body === 'string') {
+        body = querystring.parse(req.body);
+    }
+
+    // Ambil variabel yang dikirim HP kamu (dengan fallback aman)
+    const game = body.game || "PUBG";
+    const user_key = body.user_key || "pradaxca"; 
+    const serial = body.serial || "2c213b26-fbec-3f9b-99b2-22fe9117b75a";
+
+    // 3. MERAKIT STRING VALIDASI 'real' SECARA DINAMIS
+    // Ini yang akan membodohi sistem keamanan APK agar merespons sukses!
+    const realValue = `${game}-${user_key}-${serial}-Vm8Lk7Uj2JmsjCPVPVjrLa7zgfx3uz9E`;
+
+    const expiredDate = "2099-12-31 23:59:59";
+    const tsDate = new Date().toISOString().replace('T', ' ').substring(0, 19);
+
+    // 4. Struktur Data Inti
     const responseData = {
         "status": true,
         "data": {
-            "real": "pradaxca-2c213b26-fbec-3f9b-99b2-22fe9117b75a-Vm8Lk7Uj2JmsjCPVPVjrLa7zgfx3uz9E",
+            "real": realValue,
             "token": "8f3a8c41e9a0941483f5e7f15b6f19e2",
             "modname": "Auto Draw V11 Pro VIP",
             "mod_status": "Safe",
@@ -28,22 +50,19 @@ module.exports = (req, res) => {
             "Floating": "on",
             "Memory": "off",
             "Setting": "on",
-            "expired_date": "2099-06-29 04:22:23",
-            "EXP": "2099-06-29 04:22:23",
-            "ts": "2026-06-23 12:31:22",
-            "exdate": "2099-06-29 04:22:23",
+            "expired_date": expiredDate,
+            "EXP": expiredDate,
+            "ts": tsDate,
+            "exdate": expiredDate,
             "device": "100",
-            "rng": 1782151112,
-            "realdata": "9+oM2gO0QLqDzaSOsBDiA4NTafcZALnZV9XBoWeAs68="
+            "rng": 1782190046, // Diambil dari screenshot terbaru
+            "realdata": "MIX/uyk/rttB9AfplsavcojT49+YO5G2WHdg008aASE=" // Data terbaru
         }
     };
 
-    // 3. Render ke JSON Mentah
+    // 5. Cetak ke JSON Minified dan Kirim Length yang Pas
     const jsonMurni = JSON.stringify(responseData);
-
-    // Kunci ukuran byte agar sesuai dengan pembacaan HTTP Client di aplikasi
     res.setHeader('Content-Length', Buffer.byteLength(jsonMurni));
 
-    // Selalu paksa status 200 OK
     return res.status(200).send(jsonMurni);
 };
