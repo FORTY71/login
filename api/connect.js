@@ -1,77 +1,49 @@
-const crypto = require('crypto');
-
-module.exports = async (req, res) => {
-    // 1. Set Header CORS paling aman & support JSON
+module.exports = (req, res) => {
+    // 1. Meniru Header Server Asli (Sangat Penting untuk Bypass)
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Server', 'cloudflare');
+    res.setHeader('X-Turbo-Charged-By', 'LiteSpeed');
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+    res.setHeader('Connection', 'close');
 
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
 
-    // 2. Setup Waktu & Expired 2099
-    const waktuSekarang = new Date();
-    const aturFormatTanggal = (date) => {
-        return date.toISOString().replace('T', ' ').substring(0, 19);
-    };
-    const expiredDate = "2099-12-31 23:59:59";
-
-    // 3. Generate Nilai Default Aman (Fallback anti-error)
-    let randomUUID = "2c213b26-fbec-3f9b-99b2-22fe9117b75a";
-    let randomRng = 1782151112;
-    let customToken = "8f3a8c41e9a0941483f5e7f15b6f19e2";
-    let realDataEncoded = "9+oM2gO0QLqDzaSOsBDiA4NTafcZALnZV9XBoWeAs68=";
-
-    try {
-        const rawTokenString = "pradaxca_auth_" + waktuSekarang.getTime() + Math.random();
-        customToken = crypto.createHash('md5').update(rawTokenString).digest('hex');
-
-        const payloadDataKita = JSON.stringify({
-            owner: "pradaxca_system",
-            status: "VIP_LIFETIME",
-            auth_validation: "success"
-        });
-        realDataEncoded = Buffer.from(payloadDataKita).toString('base64');
-        randomUUID = crypto.randomUUID ? crypto.randomUUID() : '2c213b26-fbec-3f9b-99b2-22fe9117b75a';
-        randomRng = Math.floor(Math.random() * 2000000000);
-    } catch (e) {
-        // Abaikan error generator, tetap pakai fallback di atas
-    }
-
-    // 4. Struktur Data Inti
-    const coreData = {
-        "real": `pradaxca-${randomUUID}-Vm8Lk7Uj2JmsjCPVPVjrLa7zgfx3uz9E`,
-        "token": customToken,
-        "modname": "Auto Draw V11 Pro VIP",
-        "mod_status": "Safe",
-        "credit": "Safe",
-        "ESP": "off",
-        "Item": "off",
-        "AIM": "off",
-        "SilentAim": "off",
-        "BulletTrack": "off",
-        "Floating": "on",
-        "Memory": "off",
-        "Setting": "on",
-        "expired_date": expiredDate,
-        "EXP": expiredDate,
-        "ts": aturFormatTanggal(waktuSekarang),
-        "exdate": expiredDate,
-        "device": "100",
-        "rng": randomRng,
-        "realdata": realDataEncoded
-    };
-
-    // 5. Menggabungkan format ROOT (Python) dan format OBJECT (Node.js)
-    // Ini trik supada aplikasi tipe apapun tidak akan bingung membaca key-nya
+    // 2. Data VIP 2099 milik Pradaxca
     const responseData = {
         "status": true,
-        "data": coreData, // Untuk format yang dibungkus object data
-        ...coreData       // Untuk format Python murni langsung di root
+        "data": {
+            "real": "pradaxca-2c213b26-fbec-3f9b-99b2-22fe9117b75a-Vm8Lk7Uj2JmsjCPVPVjrLa7zgfx3uz9E",
+            "token": "8f3a8c41e9a0941483f5e7f15b6f19e2",
+            "modname": "Auto Draw V11 Pro VIP",
+            "mod_status": "Safe",
+            "credit": "Safe",
+            "ESP": "off",
+            "Item": "off",
+            "AIM": "off",
+            "SilentAim": "off",
+            "BulletTrack": "off",
+            "Floating": "on",
+            "Memory": "off",
+            "Setting": "on",
+            "expired_date": "2099-06-29 04:22:23",
+            "EXP": "2099-06-29 04:22:23",
+            "ts": "2026-06-23 12:31:22",
+            "exdate": "2099-06-29 04:22:23",
+            "device": "100",
+            "rng": 1782151112,
+            "realdata": "9+oM2gO0QLqDzaSOsBDiA4NTafcZALnZV9XBoWeAs68="
+        }
     };
 
-    // 6. Selalu paksa return JSON sukses murni
-    res.setHeader('Content-Type', 'application/json');
-    return res.status(200).send(JSON.stringify(responseData, null, 2));
+    // 3. Render ke JSON Mentah
+    const jsonMurni = JSON.stringify(responseData);
+
+    // Kunci ukuran byte agar sesuai dengan pembacaan HTTP Client di aplikasi
+    res.setHeader('Content-Length', Buffer.byteLength(jsonMurni));
+
+    // Selalu paksa status 200 OK
+    return res.status(200).send(jsonMurni);
 };
