@@ -2,20 +2,12 @@
   "version": 2,
   "routes": [
     {
-      "src": "/index.php",
-      "dest": "/api/index.js"
-    },
-    {
-      "src": "/api.php",
-      "dest": "/api/index.js"
-    },
-    {
-      "src": "/login.php",
-      "dest": "/api/index.js"
+      "src": "/connect",
+      "dest": "/api/connect.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/api/index.js"
+      "dest": "/api/connect.js"
     }
   ]
 }
